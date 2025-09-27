@@ -1,0 +1,303 @@
+⚡ Lightning Vault Consensus
+1. Overview
+
+Lightning Vault introduces a novel consensus mechanism called Proof-of-Vault (PoV), a hybrid between Proof-of-Work (PoW) and time-locked Proof-of-Stake models. Unlike traditional blockchains, PoV ties economic commitment and time duration directly into mining power and reward distribution.
+
+This design creates a system where:
+
+Hash power secures the chain, ensuring blocks are computationally verified.
+
+Vaults (time-locked balances) grant long-term economic weight, incentivizing users to commit capital for extended periods.
+
+Misbehavior is punished via vault slashing, reducing the likelihood of consensus attacks.
+
+2. Proof-of-Vault Mechanics
+2.1 Vault Weight Calculation
+
+Each vault contributes to mining power based on amount locked × duration:
+
+𝑊
+𝑣
+𝑎
+𝑢
+𝑙
+𝑡
+=
+𝐴
+×
+𝐷
+W
+vault
+	​
+
+=A×D
+
+Where:
+
+𝐴
+A = Amount locked (in LVT).
+
+𝐷
+D = Lock duration in days.
+
+The effective mining weight for an address is the sum of all its active vaults:
+
+𝑊
+𝑎
+𝑑
+𝑑
+𝑟
+𝑒
+𝑠
+𝑠
+=
+∑
+𝑖
+=
+1
+𝑛
+(
+𝐴
+𝑖
+×
+𝐷
+𝑖
+)
+for active vaults
+W
+address
+	​
+
+=
+i=1
+∑
+n
+	​
+
+(A
+i
+	​
+
+×D
+i
+	​
+
+)for active vaults
+2.2 Reward Distribution
+
+Each block has a base reward 
+𝑅
+R, subject to halving every 4.5 years. Rewards are distributed as follows:
+
+If vaults exist:
+Miner’s reward = proportional share of total vault weight.
+
+𝑅
+𝑚
+𝑖
+𝑛
+𝑒
+𝑟
+=
+𝑅
+×
+𝑊
+𝑚
+𝑖
+𝑛
+𝑒
+𝑟
+𝑊
+𝑛
+𝑒
+𝑡
+𝑤
+𝑜
+𝑟
+𝑘
+R
+miner
+	​
+
+=R×
+W
+network
+	​
+
+W
+miner
+	​
+
+	​
+
+
+If no vaults exist:
+Miner receives the full base reward.
+
+2.3 Reward Halving
+
+The block reward halves every 4.5 years:
+
+𝑅
+𝑡
+=
+𝑅
+0
+2
+𝑛
+R
+t
+	​
+
+=
+2
+n
+R
+0
+	​
+
+	​
+
+
+Where:
+
+𝑅
+0
+=
+10
+ 
+𝐿
+𝑉
+𝑇
+R
+0
+	​
+
+=10LVT (initial reward).
+
+𝑛
+=
+⌊
+𝑇
+𝑒
+𝑙
+𝑎
+𝑝
+𝑠
+𝑒
+𝑑
+𝑇
+ℎ
+𝑎
+𝑙
+𝑣
+𝑖
+𝑛
+𝑔
+⌋
+n=⌊
+T
+halving
+	​
+
+T
+elapsed
+	​
+
+	​
+
+⌋.
+
+𝑇
+ℎ
+𝑎
+𝑙
+𝑣
+𝑖
+𝑛
+𝑔
+=
+4.5
+ 
+𝑦
+𝑒
+𝑎
+𝑟
+𝑠
+T
+halving
+	​
+
+=4.5years.
+
+This ensures scarcity and mirrors Bitcoin-like economic cycles.
+
+2.4 Empty Block Mining
+
+Blocks can be mined without transactions, ensuring:
+
+The chain continues progressing even with low activity.
+
+Miners remain incentivized via block rewards.
+
+3. Security & Slashing
+
+To prevent dishonest behavior:
+
+Mining proofs are bound to the miner’s address, preventing proof reuse across participants.
+
+If a miner submits an invalid block, their active MAIN vaults are slashed (burned).
+
+Slashing Formula:
+
+𝑆
+𝑚
+𝑖
+𝑛
+𝑒
+𝑟
+=
+∑
+(
+𝐴
+𝑖
+)
+for all active vaults of miner
+S
+miner
+	​
+
+=∑(A
+i
+	​
+
+)for all active vaults of miner
+
+This creates strong disincentives for cheating, as miners risk losing both future rewards and their locked capital.
+
+4. Difficulty Adjustment
+
+Mining difficulty adjusts dynamically every ~10 blocks:
+
+If blocks are mined too quickly → difficulty increases.
+
+If blocks are too slow → difficulty decreases.
+
+This stabilizes average block time around 60 seconds.
+
+5. Advantages of PoV
+
+Economic Security: Attackers must lock significant funds for years.
+
+Incentivized Loyalty: Long-term vaults align miner interests with network health.
+
+Hybrid Flexibility: Falls back to PoW if no vaults exist.
+
+Built-in Punishment: Slashing ensures accountability.
+
+6. Comparison with Existing Models
+Mechanism	Secures via	Weakness	Lightning Vault Advantage
+PoW (Bitcoin)	Energy cost	Energy waste, centralization	Adds vault-based economic commitment
+PoS (Ethereum)	Token stake	Easy unstaking, whales dominate	Vaults require time commitment
+PoC (Chia)	Storage space	Hardware dependency	Purely financial commitment
+PoV (Lightning)	Hash power + Vaults	—	First hybrid model using time-locked vaults
