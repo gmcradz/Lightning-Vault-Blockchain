@@ -1,303 +1,152 @@
-⚡ Lightning Vault Consensus
-1. Overview
-
-Lightning Vault introduces a novel consensus mechanism called Proof-of-Vault (PoV), a hybrid between Proof-of-Work (PoW) and time-locked Proof-of-Stake models. Unlike traditional blockchains, PoV ties economic commitment and time duration directly into mining power and reward distribution.
-
-This design creates a system where:
-
-Hash power secures the chain, ensuring blocks are computationally verified.
-
-Vaults (time-locked balances) grant long-term economic weight, incentivizing users to commit capital for extended periods.
-
-Misbehavior is punished via vault slashing, reducing the likelihood of consensus attacks.
-
-2. Proof-of-Vault Mechanics
-2.1 Vault Weight Calculation
-
-Each vault contributes to mining power based on amount locked × duration:
-
-𝑊
-𝑣
-𝑎
-𝑢
-𝑙
-𝑡
-=
-𝐴
-×
-𝐷
-W
-vault
-	​
-
-=A×D
-
-Where:
-
-𝐴
-A = Amount locked (in LVT).
-
-𝐷
-D = Lock duration in days.
-
-The effective mining weight for an address is the sum of all its active vaults:
-
-𝑊
-𝑎
-𝑑
-𝑑
-𝑟
-𝑒
-𝑠
-𝑠
-=
-∑
-𝑖
-=
-1
-𝑛
-(
-𝐴
-𝑖
-×
-𝐷
-𝑖
-)
-for active vaults
-W
-address
-	​
-
-=
-i=1
-∑
-n
-	​
-
-(A
-i
-	​
-
-×D
-i
-	​
-
-)for active vaults
-2.2 Reward Distribution
-
-Each block has a base reward 
-𝑅
-R, subject to halving every 4.5 years. Rewards are distributed as follows:
-
-If vaults exist:
-Miner’s reward = proportional share of total vault weight.
-
-𝑅
-𝑚
-𝑖
-𝑛
-𝑒
-𝑟
-=
-𝑅
-×
-𝑊
-𝑚
-𝑖
-𝑛
-𝑒
-𝑟
-𝑊
-𝑛
-𝑒
-𝑡
-𝑤
-𝑜
-𝑟
-𝑘
-R
-miner
-	​
-
-=R×
-W
-network
-	​
-
-W
-miner
-	​
-
-	​
-
-
-If no vaults exist:
-Miner receives the full base reward.
-
-2.3 Reward Halving
-
-The block reward halves every 4.5 years:
-
-𝑅
-𝑡
-=
-𝑅
-0
-2
-𝑛
-R
-t
-	​
-
-=
-2
-n
-R
-0
-	​
-
-	​
-
-
-Where:
-
-𝑅
-0
-=
-10
- 
-𝐿
-𝑉
-𝑇
-R
-0
-	​
-
-=10LVT (initial reward).
-
-𝑛
-=
-⌊
-𝑇
-𝑒
-𝑙
-𝑎
-𝑝
-𝑠
-𝑒
-𝑑
-𝑇
-ℎ
-𝑎
-𝑙
-𝑣
-𝑖
-𝑛
-𝑔
-⌋
-n=⌊
-T
-halving
-	​
-
-T
-elapsed
-	​
-
-	​
-
-⌋.
-
-𝑇
-ℎ
-𝑎
-𝑙
-𝑣
-𝑖
-𝑛
-𝑔
-=
-4.5
- 
-𝑦
-𝑒
-𝑎
-𝑟
-𝑠
-T
-halving
-	​
-
-=4.5years.
-
-This ensures scarcity and mirrors Bitcoin-like economic cycles.
-
-2.4 Empty Block Mining
-
-Blocks can be mined without transactions, ensuring:
-
-The chain continues progressing even with low activity.
-
-Miners remain incentivized via block rewards.
-
-3. Security & Slashing
-
-To prevent dishonest behavior:
-
-Mining proofs are bound to the miner’s address, preventing proof reuse across participants.
-
-If a miner submits an invalid block, their active MAIN vaults are slashed (burned).
-
-Slashing Formula:
-
-𝑆
-𝑚
-𝑖
-𝑛
-𝑒
-𝑟
-=
-∑
-(
-𝐴
-𝑖
-)
-for all active vaults of miner
-S
-miner
-	​
-
-=∑(A
-i
-	​
-
-)for all active vaults of miner
-
-This creates strong disincentives for cheating, as miners risk losing both future rewards and their locked capital.
-
-4. Difficulty Adjustment
-
-Mining difficulty adjusts dynamically every ~10 blocks:
-
-If blocks are mined too quickly → difficulty increases.
-
-If blocks are too slow → difficulty decreases.
-
-This stabilizes average block time around 60 seconds.
-
-5. Advantages of PoV
-
-Economic Security: Attackers must lock significant funds for years.
-
-Incentivized Loyalty: Long-term vaults align miner interests with network health.
-
-Hybrid Flexibility: Falls back to PoW if no vaults exist.
-
-Built-in Punishment: Slashing ensures accountability.
-
-6. Comparison with Existing Models
-Mechanism	Secures via	Weakness	Lightning Vault Advantage
-PoW (Bitcoin)	Energy cost	Energy waste, centralization	Adds vault-based economic commitment
-PoS (Ethereum)	Token stake	Easy unstaking, whales dominate	Vaults require time commitment
-PoC (Chia)	Storage space	Hardware dependency	Purely financial commitment
-PoV (Lightning)	Hash power + Vaults	—	First hybrid model using time-locked vaults
+📄 Advanced Technical Whitepaper (Developer Version)
+
+Lightning Vault: A Proof-of-Vault Consensus Blockchain
+
+Abstract
+
+Lightning Vault introduces Proof-of-Vault (PoV), a hybrid consensus model combining Proof-of-Work’s cryptographic fairness with staking principles through token vaults. Mining power derives from computational proofs and locked vault balances, aligning incentives between miners, long-term holders, and the ecosystem treasury.
+
+1. System Architecture
+
+Language: Python (Flask-based node, Waitress WSGI server).
+
+Networking: REST + Ethereum JSON-RPC compatibility on port 8545.
+
+Persistence: JSON-based blockchain state, with backups.
+
+VM Integration: Experimental EVM engine for smart contract support.
+
+2. Consensus: Proof-of-Vault (PoV)
+
+PoW Function:
+
+Payload = new_proof² - previous_proof² : miner_address.
+
+SHA-256 hash required to meet difficulty.
+
+Vault Weight:
+
+Mining rewards scale with vault weight = amount * lock_duration_days.
+
+Bonus tiers (0–3) grant higher mining efficiency based on vault share of network weight.
+
+Rewards Distribution:
+
+Base reward halves every 4.5 years.
+
+Split: 30% miner, 70% vaults, 1% treasury.
+
+Vault Slashing: Invalid PoW attempts burn all active vaults of offending miner.
+
+3. Tokenomics
+
+Ticker: LVT
+
+Max Supply: 140,000,000 LVT
+
+Premine: 20% allocated to founder addresses at genesis.
+
+Halving Schedule: ~4.5 years per halving cycle.
+
+Treasury Address: 0x0000000000000000000000000000000000000fee
+
+4. Vault System
+
+Vault Types: Time-locked MAIN token vaults.
+
+Interest Rate:
+
+Base: 5% annual.
+
+Bonus: up to +2% for duration, +1% for large deposits.
+
+Unlock: Funds + interest released after expiry, subject to supply cap.
+
+Penalty: Vaults can be slashed for invalid miner proofs.
+
+5. Transactions & Blocks
+
+Transaction Types: transfer, mining_reward, nft_mint, nft_transfer, genesis.
+
+Merkle Root: Ensures transaction integrity.
+
+Mempool: Pending transactions capped at 100 per block.
+
+Validation: Double-spend protection, NFT validation, vault balance checks.
+
+6. NFTs
+
+Native NFT contracts with:
+
+deploy, mint, transfer, ownerOf, balanceOf, tokenURI.
+
+Minting requires 10 LVT fee, credited to treasury.
+
+7. Governance
+
+Placeholder proposals & voting routes integrated (/governance/*).
+
+Future upgrades: On-chain binding governance.
+
+8. Ethereum Compatibility
+
+Supported RPC Methods: eth_getBalance, eth_blockNumber, eth_getBlockByNumber, eth_sendTransaction, eth_sendRawTransaction, etc.
+
+Wallet Integration: MetaMask support via custom chain configuration (ChainID 296070).
+
+9. Security & Validation
+
+Merkle Proof Validation for all transactions.
+
+Vault Slashing against invalid proofs.
+
+Backup & Recovery on corrupted state files.
+
+Sybil Resistance via PoW + vault locking.
+
+10. Roadmap
+
+Q4 2025: Wallet release, vault system, NFT support.
+
+Q1 2026: Explorer + advanced governance.
+
+Q2 2026: Smart contracts via EVM engine.
+
+Q3 2026: DeFi integrations & bridges.
+
+⚡ Lightning Vault is not just a blockchain. It’s a vault for your future.
+
+
+👉 Website: lightningvault.co.uk
+
+
+MIT License
+
+Copyright (c) 2025 Lightning Vault Blockchain
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights 
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+copies of the Software, and to permit persons to whom the Software is 
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all 
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+SOFTWARE.
+
+
+© 2025 Lightning Vault Blockchain. All rights reserved.
+
+This document and its contents are the intellectual property of Lightning Vault Blockchain. 
+No part of this publication may be reproduced, distributed, or transmitted in any form or by 
+any means, including photocopying, recording, or other electronic or mechanical methods, 
+without the prior written permission of the publisher, except in the case of brief quotations 
+embodied in critical reviews and certain other noncommercial uses permitted by copyright law.
